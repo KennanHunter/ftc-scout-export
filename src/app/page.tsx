@@ -34,6 +34,9 @@ type TepRecordsResponse = {
 };
 
 const buildCSV = async (totalTeams: number) => {
+
+
+  
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
 
@@ -115,6 +118,7 @@ const downloadBlob = (fileBlob: Blob) => {
 export default function Home() {
   const [totalTeams, setTotalTeams] = useState(6000);
   const [isLoading, setIsLoading] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const handleDownload = async () => {
     if (isLoading) return;
@@ -137,22 +141,38 @@ export default function Home() {
           <p className="text-gray-600 text-sm">Download team rankings data</p>
         </div>
 
-        <div className="mb-6">
-          <label
-            htmlFor="totalTeams"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Total Number of Teams
-          </label>
+        <div
+          className="mb-6"
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+        >
+          <div className="relative">
+            <label
+              htmlFor="totalTeams"
+              className="block text-sm font-medium text-gray-700 mb-2 cursor-help"
+            >
+              Total Number of Team-Event Combination Entries
+            </label>
+            {showTooltip && (
+              <div className="absolute z-10 w-100 p-3 mb-2 text-sm text-white bg-gray-900 bg-opacity-90 rounded-lg shadow-lg -top-2 left-0 transform -translate-y-full">
+                Each team-event combination counts as one entry. Example: 6,000
+                teams × 3 events = 18,000 entries. Number increases throughout
+                the season. Setting this higher than needed won't break anything
+                but may slow down FTC Scout. Our query method bypasses their
+                rate limiting, so please be considerate of their servers.
+                <div className="absolute w-3 h-3 bg-gray-900 bg-opacity-90 transform rotate-45 -bottom-1.5 left-8"></div>
+              </div>
+            )}
+          </div>
           <input
             id="totalTeams"
             type="number"
-            value={totalTeams}
+            value={totalTeams ? totalTeams : ""}
             onChange={(e) => setTotalTeams(Number(e.target.value))}
             disabled={isLoading}
             className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
             min="1"
-            max="10000"
+            max="20000"
           />
         </div>
 
