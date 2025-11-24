@@ -33,12 +33,61 @@ type TepRecordsResponse = {
   };
 };
 
+type Team = {
+  number: number;
+  name: string;
+  rookieYear: number;
+  website: string | null;
+  location: {
+    city: string;
+    country: string;
+    state: string;
+    venue: string | null;
+  };
+};
+
+type TeamsSearchResponse = {
+  data: {
+    teamsSearch: Team[];
+  };
+};
+
 const buildCSV = async (totalTeams: number) => {
-
-
-  
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
+
+  // First, fetch all team data
+  const teamsGraphql = JSON.stringify({
+    query: `{
+  teamsSearch {
+    number
+    name
+    rookieYear
+    website
+    location {
+      city
+      country
+      state
+      venue
+    }
+  }
+}`,
+    variables: {},
+  });
+
+  const teamsResponse = await fetch("https://api.ftcscout.org/graphql", {
+    method: "POST",
+    headers: myHeaders,
+    body: teamsGraphql,
+  });
+
+  const teamsData: TeamsSearchResponse = await teamsResponse.json();
+
+  // Create a map of team number to team data for quick lookup
+  const teamMap = new Map<number, Team>();
+  teamsData.data.teamsSearch.forEach((team) => {
+    teamMap.set(team.number, team);
+  });
 
   const queries_arr = [];
 
@@ -73,8 +122,16 @@ const buildCSV = async (totalTeams: number) => {
                 teamNumber,
                 stats: { opr },
               },
-            }) =>
-              `${teamNumber ?? ""}, \
+            }) => {
+              const team = teamMap.get(teamNumber);
+              const location = team?.location
+                ? `${team.location.city} ${team.location.state} ${team.location.country}`.trim()
+                : "";
+              return `${teamNumber ?? ""}, \
+${team?.name ?? ""}, \
+${team?.rookieYear ?? ""}, \
+${team?.website ?? ""}, \
+${location}, \
 ${opr?.totalPoints?.toFixed(2) ?? ""}, \
 ${opr?.totalPointsNp?.toFixed(2) ?? ""}, \
 ${opr?.autoPoints?.toFixed(2) ?? ""}, \
@@ -83,7 +140,8 @@ ${(opr?.dcPoints - opr?.dcBasePoints)?.toFixed(2) ?? ""}, \
 ${opr?.dcArtifactPoints?.toFixed(2) ?? ""}, \
 ${opr?.dcPatternPoints?.toFixed(2) ?? ""}, \
 ${opr?.dcDepotPoints?.toFixed(2) ?? ""}, \
-${opr?.dcBasePoints?.toFixed(2) ?? ""}`
+${opr?.dcBasePoints?.toFixed(2) ?? ""}`;
+            }
           );
         })
     );
@@ -93,7 +151,7 @@ ${opr?.dcBasePoints?.toFixed(2) ?? ""}`
 
   const data = await Promise.all(queries_arr);
   let csv =
-    "teamnumber, opr, nopr, auto, teleopCombined, teleop (teleopCombined - dcBasePoints), dcArtifactPoints, dcPatternPoints, dcDepotPoints, endgame (dcBasePoints) \n" +
+    "teamnumber, name, rookieYear, website, location, opr, nopr, auto, teleopCombined, teleop (teleopCombined - dcBasePoints), dcArtifactPoints, dcPatternPoints, dcDepotPoints, endgame (dcBasePoints) \n" +
     data.flat().join("\n");
 
   downloadBlob(new Blob([csv], { type: "text/csv" }));
