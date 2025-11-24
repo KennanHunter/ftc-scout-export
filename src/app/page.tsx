@@ -76,6 +76,7 @@ ${opr?.totalPoints?.toFixed(2) ?? ""}, \
 ${opr?.totalPointsNp?.toFixed(2) ?? ""}, \
 ${opr?.autoPoints?.toFixed(2) ?? ""}, \
 ${opr?.dcPoints?.toFixed(2) ?? ""}, \
+${(opr?.dcPoints - opr?.dcBasePoints)?.toFixed(2) ?? ""}, \
 ${opr?.dcArtifactPoints?.toFixed(2) ?? ""}, \
 ${opr?.dcPatternPoints?.toFixed(2) ?? ""}, \
 ${opr?.dcDepotPoints?.toFixed(2) ?? ""}, \
@@ -89,7 +90,7 @@ ${opr?.dcBasePoints?.toFixed(2) ?? ""}`
 
   const data = await Promise.all(queries_arr);
   let csv =
-    "teamnumber, opr, nopr, auto, teleopCombined, dcArtifactPoints, dcPatternPoints, dcDepotPoints, endgame (dcBasePoints) \n" +
+    "teamnumber, opr, nopr, auto, teleopCombined, teleop (teleopCombined - dcBasePoints), dcArtifactPoints, dcPatternPoints, dcDepotPoints, endgame (dcBasePoints) \n" +
     data.flat().join("\n");
 
   downloadBlob(new Blob([csv], { type: "text/csv" }));
