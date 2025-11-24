@@ -69,7 +69,9 @@ type Location {
   country: String!
 }
 
-# A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+"""
 scalar DateTime
 
 type Award {
@@ -98,6 +100,8 @@ enum AwardType {
   Promote
   Control
   Motivate
+  Reach
+  Sustain
   Design
   Innovate
   Connect
@@ -158,9 +162,12 @@ enum EventType {
   DemoExhibition
   VolunteerSignup
   PracticeDay
+  Premier
 }
 
-# A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+"""
+A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+"""
 scalar Date
 
 type TeamEventParticipation {
@@ -183,6 +190,7 @@ union TeamEventStats =
   | TeamEventStats2022
   | TeamEventStats2023
   | TeamEventStats2024
+  | TeamEventStats2025
 
 type TeamEventStats2019 {
   rank: Int!
@@ -555,6 +563,55 @@ type TeamEventStats2024Group {
   totalPoints: Float!
 }
 
+type TeamEventStats2025 {
+  rank: Int!
+  rp: Float!
+  tb1: Float!
+  tb2: Float!
+  wins: Int!
+  losses: Int!
+  ties: Int!
+  dqs: Int!
+  qualMatchesPlayed: Int!
+  tot: TeamEventStats2025Group!
+  avg: TeamEventStats2025Group!
+  min: TeamEventStats2025Group!
+  max: TeamEventStats2025Group!
+  dev: TeamEventStats2025Group!
+  opr: TeamEventStats2025Group!
+}
+
+type TeamEventStats2025Group {
+  autoLeavePoints: Float!
+  autoLeavePointsIndividual: Float!
+  autoArtifactPoints: Float!
+  autoArtifactClassifiedPoints: Float!
+  autoArtifactOverflowPoints: Float!
+  autoPatternPoints: Float!
+  dcBasePoints: Float!
+  dcBaseBonus: Float!
+  dcBasePointsIndividual: Float!
+  dcBasePointsCombined: Float!
+  dcArtifactPoints: Float!
+  dcArtifactClassifiedPoints: Float!
+  dcArtifactOverflowPoints: Float!
+  dcPatternPoints: Float!
+  dcDepotPoints: Float!
+  movementRp: Float!
+  goalRp: Float!
+  patternRp: Float!
+  autoPoints: Float!
+  dcPoints: Float!
+  majorsCommittedPoints: Float!
+  minorsCommittedPoints: Float!
+  penaltyPointsCommitted: Float!
+  majorsByOppPoints: Float!
+  minorsByOppPoints: Float!
+  penaltyPointsByOpp: Float!
+  totalPointsNp: Float!
+  totalPoints: Float!
+}
+
 type TeamMatchParticipation {
   season: Int!
   eventCode: String!
@@ -629,6 +686,7 @@ union MatchScores =
   | MatchScores2022
   | MatchScores2023
   | MatchScores2024
+  | MatchScores2025
 
 type MatchScores2019 {
   season: Int!
@@ -1078,6 +1136,58 @@ enum ITDPark {
   None
 }
 
+type MatchScores2025 {
+  season: Int!
+  eventCode: String!
+  matchId: Int!
+  red: MatchScores2025Alliance!
+  blue: MatchScores2025Alliance!
+}
+
+type MatchScores2025Alliance {
+  season: Int!
+  eventCode: String!
+  matchId: Int!
+  alliance: Alliance!
+  autoLeavePoints: Int!
+  autoLeave1: Int!
+  autoLeave2: Int!
+  autoArtifactPoints: Int!
+  autoArtifactClassifiedPoints: Int!
+  autoArtifactOverflowPoints: Int!
+  autoPatternPoints: Int!
+  autoClassifierState: [ArtifactType]!
+  dcBasePoints: Int!
+  dcBase1: Int!
+  dcBase2: Int!
+  dcBaseBonus: Int!
+  dcArtifactPoints: Int!
+  dcArtifactClassifiedPoints: Int!
+  dcArtifactOverflowPoints: Int!
+  dcPatternPoints: Int!
+  dcDepotPoints: Int!
+  dcClassifierState: [ArtifactType]!
+  movementRp: Boolean!
+  goalRp: Boolean!
+  patternRp: Boolean!
+  autoPoints: Int!
+  dcPoints: Int!
+  minorsCommitted: Int!
+  majorsCommitted: Int!
+  minorsByOpp: Int!
+  majorsByOpp: Int!
+  penaltyPointsCommitted: Int!
+  penaltyPointsByOpp: Int!
+  totalPointsNp: Int!
+  totalPoints: Int!
+}
+
+enum ArtifactType {
+  None
+  Purple
+  Green
+}
+
 type QuickStats {
   season: Int!
   number: Int!
@@ -1213,6 +1323,7 @@ enum EventTypeOption {
   DemoExhibition
   VolunteerSignup
   PracticeDay
+  Premier
 }
 
 type TepRecords {
