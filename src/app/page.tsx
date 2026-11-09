@@ -1,189 +1,49 @@
 "use client";
 
 import { useState } from "react";
+import { buildCSV2025 } from "./export/export-2025";
+import { buildCSV2026 } from "./export/export-2026";
+import type { BatchStats } from "./export/fetch-records";
 
-// opr { totalPoints, totalPointsNp, autoPoints, dcArtifactPoints, dcPatternPoints, dcDepotPoints, dcBasePoints }
-type TepRecord = {
-  noFilterRank: number;
-  data: {
-    teamNumber: number;
-    stats: {
-      opr: {
-        totalPoints: number;
-        totalPointsNp: number;
-        autoPoints: number;
-        // teleop
-        dcPoints: number;
-        // teleop components
-        dcArtifactPoints: number;
-        dcPatternPoints: number;
-        dcDepotPoints: number;
-        // endgame
-        dcBasePoints: number;
-      };
-    };
-  };
-};
+const SEASONS = {
+  "2026": { label: "2026-2027 BIOBUZZ", build: buildCSV2026 },
+  "2025": { label: "2025-2026 DECODE", build: buildCSV2025 },
+} as const;
 
-type TepRecordsResponse = {
-  data: {
-    tepRecords: {
-      data: TepRecord[];
-    };
-  };
-};
-
-type Team = {
-  number: number;
-  name: string;
-  rookieYear: number;
-  website: string | null;
-  location: {
-    city: string;
-    country: string;
-    state: string;
-    venue: string | null;
-  };
-};
-
-type TeamsSearchResponse = {
-  data: {
-    teamsSearch: Team[];
-  };
-};
-
-const buildCSV = async (totalTeams: number) => {
-  const myHeaders = new Headers();
-  myHeaders.append("Content-Type", "application/json");
-
-  // First, fetch all team data
-  const teamsGraphql = JSON.stringify({
-    query: `{
-  teamsSearch {
-    number
-    name
-    rookieYear
-    website
-    location {
-      city
-      country
-      state
-      venue
-    }
-  }
-}`,
-    variables: {},
-  });
-
-  const teamsResponse = await fetch("https://api.ftcscout.org/graphql", {
-    method: "POST",
-    headers: myHeaders,
-    body: teamsGraphql,
-  });
-
-  const teamsData: TeamsSearchResponse = await teamsResponse.json();
-
-  // Create a map of team number to team data for quick lookup
-  const teamMap = new Map<number, Team>();
-  teamsData.data.teamsSearch.forEach((team) => {
-    teamMap.set(team.number, team);
-  });
-
-  const queries_arr = [];
-
-  let skip = 0;
-  const take = 50;
-
-  while (skip + take < totalTeams) {
-    const graphql = JSON.stringify({
-      query: `{\r\n  tepRecords(season:2025, skip:${skip}, take:${take}, region:All, ) {\r\n    data {\r\n      noFilterRank\r\n      data {\r\n        teamNumber\r\n        stats { \r\n            ... on TeamEventStats2025 {\r\n            opr { totalPoints, totalPointsNp, autoPoints, dcPoints, dcArtifactPoints, dcPatternPoints, dcDepotPoints, dcBasePoints }}\r\n        }\r\n      }\r\n    }\r\n  }\r\n}\r\n`,
-      variables: {},
-    });
-
-    const requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: graphql,
-    };
-
-    queries_arr.push(
-      fetch("https://api.ftcscout.org/graphql", requestOptions)
-        .then((response) => response.text())
-        .then((result) => {
-          let obj: TepRecordsResponse = JSON.parse(result);
-
-          let { data } = obj.data.tepRecords;
-
-          console.dir({ data });
-
-          return data.map(
-            ({
-              data: {
-                teamNumber,
-                stats: { opr },
-              },
-            }) => {
-              const team = teamMap.get(teamNumber);
-              const location = team?.location
-                ? `${team.location.city} ${team.location.state} ${team.location.country}`.trim()
-                : "";
-              return `${teamNumber ?? ""}, \
-${team?.name ?? ""}, \
-${team?.rookieYear ?? ""}, \
-${team?.website ?? ""}, \
-${location}, \
-${opr?.totalPoints?.toFixed(2) ?? ""}, \
-${opr?.totalPointsNp?.toFixed(2) ?? ""}, \
-${opr?.autoPoints?.toFixed(2) ?? ""}, \
-${opr?.dcPoints?.toFixed(2) ?? ""}, \
-${(opr?.dcPoints - opr?.dcBasePoints)?.toFixed(2) ?? ""}, \
-${opr?.dcArtifactPoints?.toFixed(2) ?? ""}, \
-${opr?.dcPatternPoints?.toFixed(2) ?? ""}, \
-${opr?.dcDepotPoints?.toFixed(2) ?? ""}, \
-${opr?.dcBasePoints?.toFixed(2) ?? ""}`;
-            }
-          );
-        })
-    );
-
-    skip += take;
-  }
-
-  const data = await Promise.all(queries_arr);
-  let csv =
-    "teamnumber, name, rookieYear, website, location, opr, nopr, auto, teleopCombined, teleop (teleopCombined - dcBasePoints), dcArtifactPoints, dcPatternPoints, dcDepotPoints, endgame (dcBasePoints) \n" +
-    data.flat().join("\n");
-
-  downloadBlob(new Blob([csv], { type: "text/csv" }));
-};
-
-const downloadBlob = (fileBlob: Blob) => {
-  const element = document.createElement("a");
-
-  element.href = URL.createObjectURL(fileBlob);
-
-  let now = new Date();
-
-  element.download = `ftc-export-${now.getFullYear()}-${now.getMonth()}-${now.getDate()}@${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}.csv`;
-
-  document.body.appendChild(element); // Required for this to work on FireFox
-
-  element.click();
-
-  element.remove();
-};
+type SeasonKey = keyof typeof SEASONS;
 
 export default function Home() {
   const [totalTeams, setTotalTeams] = useState(6000);
+  const [season, setSeason] = useState<SeasonKey>("2026");
   const [isLoading, setIsLoading] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [lastRun, setLastRun] = useState<BatchStats | null>(null);
+  const [lastError, setLastError] = useState<string | null>(null);
+  const [progress, setProgress] = useState<{
+    completed: number;
+    total: number;
+  } | null>(null);
+  const [pendingDownload, setPendingDownload] = useState<(() => void) | null>(
+    null
+  );
 
   const handleDownload = async () => {
     if (isLoading) return;
 
     setIsLoading(true);
+    setLastRun(null);
+    setLastError(null);
+    setPendingDownload(null);
+    setProgress(null);
     try {
-      await buildCSV(totalTeams);
+      const { stats, download } = await SEASONS[season].build(
+        totalTeams,
+        (completed, total) => setProgress({ completed, total })
+      );
+      setLastRun(stats);
+      if (stats.errors > 0) setPendingDownload(() => download);
+    } catch (err) {
+      setLastError(err instanceof Error ? err.message : String(err));
     } finally {
       setIsLoading(false);
     }
@@ -197,6 +57,28 @@ export default function Home() {
             FTC Scout Export
           </h1>
           <p className="text-gray-600 text-sm">Download team rankings data</p>
+        </div>
+
+        <div className="mb-6">
+          <label
+            htmlFor="season"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Season
+          </label>
+          <select
+            id="season"
+            value={season}
+            onChange={(e) => setSeason(e.target.value as SeasonKey)}
+            disabled={isLoading}
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {Object.entries(SEASONS).map(([key, { label }]) => (
+              <option key={key} value={key}>
+                {label}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div
@@ -241,6 +123,69 @@ export default function Home() {
         >
           {isLoading ? "Downloading..." : "Download Full Rankings"}
         </button>
+
+        {isLoading && progress && (
+          <div className="mt-4">
+            <div className="flex justify-between text-sm text-gray-600 mb-1">
+              <span>
+                {progress.completed} / {progress.total} batches
+              </span>
+              <span>
+                {Math.round((progress.completed / progress.total) * 100)}%
+              </span>
+            </div>
+            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-indigo-600 transition-all duration-150"
+                style={{
+                  width: `${(progress.completed / progress.total) * 100}%`,
+                }}
+              />
+            </div>
+          </div>
+        )}
+
+        {!isLoading && lastRun && (
+          <div
+            className={`mt-4 rounded-lg p-3 text-sm ${
+              lastRun.errors > 0
+                ? "bg-amber-50 text-amber-800 border border-amber-200"
+                : "bg-green-50 text-green-800 border border-green-200"
+            }`}
+          >
+            {lastRun.errors > 0 ? (
+              <>
+                <div>
+                  Completed with errors: {lastRun.successes} batch
+                  {lastRun.successes === 1 ? "" : "es"} succeeded,{" "}
+                  {lastRun.errors} failed. CSV is missing data from the failed
+                  batches.
+                </div>
+                {pendingDownload && (
+                  <button
+                    onClick={() => {
+                      pendingDownload();
+                      setPendingDownload(null);
+                    }}
+                    className="mt-2 w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 px-4 rounded-md transition-colors"
+                  >
+                    Download partial CSV anyway
+                  </button>
+                )}
+              </>
+            ) : (
+              <>
+                Done. {lastRun.successes} batch
+                {lastRun.successes === 1 ? "" : "es"} succeeded.
+              </>
+            )}
+          </div>
+        )}
+        {!isLoading && lastError && (
+          <div className="mt-4 rounded-lg p-3 text-sm bg-red-50 text-red-800 border border-red-200">
+            Download failed: {lastError}
+          </div>
+        )}
 
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-500">

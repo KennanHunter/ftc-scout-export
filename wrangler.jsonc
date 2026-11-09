@@ -1,0 +1,9 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ftc-scout-export",
+  "compatibility_date": "2025-11-09",
+  "assets": {
+    "directory": "./out",
+    "not_found_handling": "single-page-application"
+  }
+}
