@@ -16,7 +16,6 @@ export default function Home() {
   const [totalTeams, setTotalTeams] = useState(6000);
   const [season, setSeason] = useState<SeasonKey>("2026");
   const [isLoading, setIsLoading] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
   const [lastRun, setLastRun] = useState<BatchStats | null>(null);
   const [lastError, setLastError] = useState<string | null>(null);
   const [progress, setProgress] = useState<{
@@ -81,29 +80,13 @@ export default function Home() {
           </select>
         </div>
 
-        <div
-          className="mb-6"
-          onMouseEnter={() => setShowTooltip(true)}
-          onMouseLeave={() => setShowTooltip(false)}
-        >
-          <div className="relative">
-            <label
-              htmlFor="totalTeams"
-              className="block text-sm font-medium text-gray-700 mb-2 cursor-help"
-            >
-              Total Number of Team-Event Combination Entries
-            </label>
-            {showTooltip && (
-              <div className="absolute z-10 w-100 p-3 mb-2 text-sm text-white bg-gray-900 bg-opacity-90 rounded-lg shadow-lg -top-2 left-0 transform -translate-y-full">
-                Each team-event combination counts as one entry. Example: 6,000
-                teams × 3 events = 18,000 entries. Number increases throughout
-                the season. Setting this higher than needed won't break anything
-                but may slow down FTC Scout. Our query method bypasses their
-                rate limiting, so please be considerate of their servers.
-                <div className="absolute w-3 h-3 bg-gray-900 bg-opacity-90 transform rotate-45 -bottom-1.5 left-8"></div>
-              </div>
-            )}
-          </div>
+        <div className="mb-6">
+          <label
+            htmlFor="totalTeams"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Total Number of Team-Event Combination Entries
+          </label>
           <input
             id="totalTeams"
             type="number"
@@ -114,6 +97,13 @@ export default function Home() {
             min="1"
             max="20000"
           />
+          <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+            Each team-event combination counts as one entry. Example: 6,000
+            teams × 3 events = 18,000 entries. Number increases throughout the
+            season. Setting this higher than needed won&apos;t break anything but
+            may slow down FTC Scout. Our query method bypasses their rate
+            limiting, so please be considerate of their servers.
+          </p>
         </div>
 
         <button

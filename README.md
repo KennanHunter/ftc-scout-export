@@ -1,6 +1,6 @@
 # FTC Scout Export
 
-A little web tool that pulls every team's season stats from [FTC Scout](https://ftcscout.org) and spits them out as a CSV. Handy if you want to sort, filter, or do pivot-table scouting in a spreadsheet.
+A little web tool that pulls every team's season stats from [FTC Scout](https://ftcscout.org) and spits them out as a CSV. Useful if you want to sort, filter, or do pivot-table scouting in a spreadsheet.
 
 Supports the current **BIOBUZZ (2026-2027)** season and last year's **DECODE (2025-2026)**.
 
@@ -20,12 +20,6 @@ pnpm dev
 ```
 
 That runs Next.js and GraphQL codegen side-by-side. Open http://localhost:3000.
-
-## How it's built
-
-- Next.js static export, deployed to a Cloudflare Worker with static assets.
-- GraphQL against the public `api.ftcscout.org` endpoint, with codegen for type safety.
-- No backend, no API keys — it all runs in your browser.
 
 ## Deploying
 
