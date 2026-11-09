@@ -10,7 +10,7 @@ export type TepRecords2025QueryVariables = Exact<{
 }>;
 
 
-export type TepRecords2025Query = { tepRecords: { data: Array<{ noFilterRank: number, data: { teamNumber: number, stats:
+export type TepRecords2025Query = { tepRecords: { data: Array<{ noFilterRank: number, data: { teamNumber: number, event: { name: string }, stats:
           | { opr: { totalPoints: number, totalPointsNp: number, autoPoints: number, dcPoints: number, dcArtifactPoints: number, dcPatternPoints: number, dcDepotPoints: number, dcBasePoints: number } }
           | Record<PropertyKey, never>
          | null } }> } };
@@ -21,7 +21,7 @@ export type TepRecords2026QueryVariables = Exact<{
 }>;
 
 
-export type TepRecords2026Query = { tepRecords: { data: Array<{ noFilterRank: number, data: { teamNumber: number, stats:
+export type TepRecords2026Query = { tepRecords: { data: Array<{ noFilterRank: number, data: { teamNumber: number, event: { name: string }, stats:
           | { opr: { totalPoints: number, totalPointsNp: number, autoPoints: number, dcPoints: number, autoHivePoints: number, autoLeavePointsIndividual: number, autoParkPointsIndividual: number, dcHivePoints: number, dcFlowerPoints: number, dcGardenPoints: number, dcParkPoints: number, tips: number }, avg: { swarmRp: number, pollinator1Rp: number, pollinator2Rp: number } }
           | Record<PropertyKey, never>
          | null } }> } };
@@ -57,6 +57,9 @@ export const TepRecords2025Document = new TypedDocumentString(`
       noFilterRank
       data {
         teamNumber
+        event {
+          name
+        }
         stats {
           ... on TeamEventStats2025 {
             opr {
@@ -83,6 +86,9 @@ export const TepRecords2026Document = new TypedDocumentString(`
       noFilterRank
       data {
         teamNumber
+        event {
+          name
+        }
         stats {
           ... on TeamEventStats2026 {
             opr {

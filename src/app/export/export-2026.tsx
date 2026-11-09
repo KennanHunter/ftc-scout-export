@@ -18,6 +18,9 @@ const TepRecords2026Query = graphql(`
         noFilterRank
         data {
           teamNumber
+          event {
+            name
+          }
           stats {
             ... on TeamEventStats2026 {
               opr {
@@ -54,6 +57,7 @@ const HEADER_COLS = [
   "ftcScout",
   "website",
   "location",
+  "event",
   "opr",
   "nopr",
   "auto",
@@ -84,7 +88,7 @@ export const buildCSV2026 = async (
     const batchSkip = skip;
     factories.push(() =>
       execute(TepRecords2026Query, { skip: batchSkip, take }).then((res) =>
-        res.tepRecords.data.map(({ data: { teamNumber, stats } }) => {
+        res.tepRecords.data.map(({ data: { teamNumber, event, stats } }) => {
           const opr = stats && "opr" in stats ? stats.opr : undefined;
           const avg = stats && "avg" in stats ? stats.avg : undefined;
           const team = teamMap.get(teamNumber);
@@ -95,6 +99,7 @@ export const buildCSV2026 = async (
             `https://ftcscout.org/teams/${teamNumber}`,
             team?.website,
             formatLocation(team),
+            event?.name,
             fmt(opr?.totalPoints),
             fmt(opr?.totalPointsNp),
             fmt(opr?.autoPoints),
