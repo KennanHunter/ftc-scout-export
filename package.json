@@ -3,17 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently -n next,codegen -c blue,magenta \"npm:dev:next\" \"npm:codegen:watch\"",
+    "dev": "concurrently -n next,codegen -c blue,magenta \"pnpm:dev:next\" \"pnpm:codegen:watch\"",
     "dev:next": "next dev --turbopack",
-    "build": "npm run codegen && next build",
+    "build": "pnpm codegen && next build",
     "start": "next start",
     "lint": "next lint",
     "codegen": "graphql-codegen",
     "codegen:watch": "graphql-codegen --watch",
-    "deploy": "npm run build && wrangler deploy",
-    "preview": "npm run build && wrangler dev"
+    "deploy": "pnpm build && wrangler deploy",
+    "preview": "pnpm build && wrangler dev"
   },
   "dependencies": {
+    "@graphql-typed-document-node/core": "^3.2.0",
     "graphql": "^17.1.0",
     "next": "15.1.1",
     "react": "^19.0.0",
