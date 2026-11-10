@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import ExportView from "./ExportView";
 import type { ExportPayload, SeasonKey } from "@/app/_export/types";
 
@@ -14,13 +13,17 @@ type Status =
   | { kind: "error"; message: string };
 
 export default function ExportViewLoader({ uuid }: { uuid: string }) {
-  const sp = useSearchParams();
   const [status, setStatus] = useState<Status>({ kind: "deciding" });
+  const initialSearch = useRef<string | null>(null);
 
   useEffect(() => {
-    const live = sp.get("live");
-    const seasonRaw = sp.get("season");
-    const totalRaw = sp.get("totalTeams");
+    if (initialSearch.current === null) {
+      initialSearch.current = window.location.search;
+    }
+    const params = new URLSearchParams(initialSearch.current);
+    const live = params.get("live");
+    const seasonRaw = params.get("season");
+    const totalRaw = params.get("totalTeams");
 
     if (live === "1" && seasonRaw && totalRaw) {
       const season: SeasonKey = seasonRaw === "2025" ? "2025" : "2026";
@@ -59,7 +62,7 @@ export default function ExportViewLoader({ uuid }: { uuid: string }) {
     return () => {
       cancelled = true;
     };
-  }, [sp, uuid]);
+  }, [uuid]);
 
   if (status.kind === "deciding" || status.kind === "loading-resume") {
     return (

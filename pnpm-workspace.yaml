@@ -8,6 +8,7 @@ minimumReleaseAgeExclude:
   - "@cloudflare/workerd-windows-64"
   - miniflare
 allowBuilds:
+  '@parcel/watcher': set this to true or false
   esbuild: true
   sharp: true
   workerd: true

@@ -36,7 +36,7 @@ export default function ColumnsMenu({
       <summary className="list-none cursor-pointer h-7 px-2 rounded border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 text-xs text-neutral-200 select-none inline-flex items-center">
         Columns{hiddenCount > 0 ? ` (${headers.length - hiddenCount}/${headers.length})` : ""} ▾
       </summary>
-      <div className="absolute right-0 mt-1 z-20 w-64 max-h-80 overflow-auto rounded-md border border-neutral-800 bg-neutral-900 shadow-xl p-2">
+      <div className="absolute right-0 mt-1 z-50 w-64 max-h-80 overflow-auto rounded-md border border-neutral-800 bg-neutral-900 shadow-xl p-2">
         <div className="flex justify-between gap-2 mb-2 pb-2 border-b border-neutral-800">
           <button
             onClick={() => onAll(true)}
