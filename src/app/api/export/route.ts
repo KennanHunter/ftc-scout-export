@@ -1,4 +1,8 @@
-import { getExportsBinding, putExport } from "@/app/_export/kv";
+import {
+  getExportsBinding,
+  putExport,
+  pushRecentExport,
+} from "@/app/_export/kv";
 import {
   prepareContext,
   runBatches,
@@ -67,7 +71,17 @@ export async function POST(req: Request): Promise<Response> {
       };
 
       try {
+        send({
+          type: "phase",
+          phase: "teamMap",
+          label: "Fetching team list…",
+        });
         const ctx = await prepareContext(season, body.totalTeams);
+        send({
+          type: "phase",
+          phase: "batches",
+          label: "Fetching OPR data…",
+        });
         send({
           type: "meta",
           uuid,
@@ -116,6 +130,12 @@ export async function POST(req: Request): Promise<Response> {
           };
           try {
             await putExport(kv, payload);
+            await pushRecentExport(kv, {
+              uuid,
+              season,
+              createdAt: payload.createdAt,
+              totalRecords: payload.totalRecords,
+            });
           } catch (e) {
             log.error("api.export", "KV put failed", {
               uuid,

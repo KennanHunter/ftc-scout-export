@@ -52,6 +52,9 @@ export const HEADER_COLS_2026 = [
 export const headersFor = (season: SeasonKey) =>
   season === "2025" ? HEADER_COLS_2025 : HEADER_COLS_2026;
 
+export const seasonLabel = (season: SeasonKey): string =>
+  season === "2025" ? "Decode 2025–2026" : "Biobuzz 2026–2027";
+
 export const formatLocation = (team: TeamInfo | null | undefined) =>
   team?.location
     ? `${team.location.city ?? ""} ${team.location.state ?? ""} ${

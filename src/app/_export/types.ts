@@ -70,7 +70,10 @@ export type ExportPayload = {
   records: FullRecord[];
 };
 
+export type StreamPhase = "teamMap" | "batches";
+
 export type StreamEvent =
+  | { type: "phase"; phase: StreamPhase; label: string }
   | { type: "meta"; uuid: string; season: SeasonKey; totalBatches: number }
   | { type: "rows"; batchIndex: number; rows: FullRecord[] }
   | { type: "progress"; completed: number; total: number }

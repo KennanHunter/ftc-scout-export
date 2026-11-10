@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import RecentExports from "./_components/RecentExports";
 
 const SEASONS = {
   "2026": { label: "2026-2027 BIOBUZZ" },
@@ -26,13 +27,12 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-200 grid place-items-center">
-      <main className="bg-neutral-900 rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 border border-neutral-800">
+    <div className="min-h-screen bg-neutral-950 text-neutral-200 flex items-center justify-center py-10">
+      <div className="max-w-md w-full mx-4">
+      <RecentExports />
+      <main className="bg-neutral-900 rounded-2xl shadow-2xl p-8 border border-neutral-800">
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold mb-2">FTC Scout Export</h1>
-          <p className="text-neutral-400 text-sm">
-            Stream team rankings into a live table
-          </p>
         </div>
 
         <div className="mb-5">
@@ -118,6 +118,7 @@ export default function Home() {
           </p>
         </div>
       </main>
+      </div>
     </div>
   );
 }

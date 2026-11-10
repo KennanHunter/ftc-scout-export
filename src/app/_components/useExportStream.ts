@@ -5,6 +5,7 @@ import type {
   FullRecord,
   SeasonKey,
   StreamEvent,
+  StreamPhase,
 } from "@/app/_export/types";
 
 export type FailedBatch = { index: number; skip: number; take: number };
@@ -20,6 +21,7 @@ export type StreamState = {
   done: boolean;
   failedBatches: FailedBatch[];
   fatalError: string | null;
+  phase: { phase: StreamPhase; label: string } | null;
 };
 
 const parseLines = (buffer: string) => {
@@ -81,12 +83,15 @@ export function useExportStream(initial: {
     done: Boolean(initial.seedDone),
     failedBatches: [],
     fatalError: null,
+    phase: null,
   }));
   const abortRef = useRef<AbortController | null>(null);
 
   const handleEvent = useCallback((ev: StreamEvent) => {
     setState((prev) => {
       switch (ev.type) {
+        case "phase":
+          return { ...prev, phase: { phase: ev.phase, label: ev.label } };
         case "meta":
           return {
             ...prev,
@@ -138,6 +143,7 @@ export function useExportStream(initial: {
         done: false,
         failedBatches: [],
         fatalError: null,
+        phase: null,
       });
       try {
         const resp = await fetch("/api/export", {
