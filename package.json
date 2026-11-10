@@ -3,33 +3,41 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently -n next,codegen -c blue,magenta \"pnpm:dev:next\" \"pnpm:codegen:watch\"",
-    "dev:next": "next dev --turbopack",
-    "build": "pnpm codegen && next build",
-    "start": "next start",
-    "lint": "next lint",
+    "dev": "concurrently -n cf,codegen -c blue,magenta \"pnpm:dev:cf\" \"pnpm:codegen:watch\"",
+    "dev:cf": "cf dev",
+    "build": "pnpm codegen && vite build",
     "codegen": "graphql-codegen",
     "codegen:watch": "graphql-codegen --watch",
-    "deploy": "pnpm build && wrangler deploy",
-    "preview": "pnpm build && wrangler dev"
+    "deploy": "pnpm build && cf deploy"
   },
   "dependencies": {
     "@graphql-typed-document-node/core": "^3.2.0",
+    "@tanstack/react-table": "^8.20.5",
+    "@vinext/cloudflare": "^1.3.3",
+    "exceljs": "^4.4.0",
     "graphql": "^17.1.0",
     "next": "15.1.1",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-server-dom-webpack": "^19.3.1",
+    "vinext": "^1.4.4"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^2.0.0-beta.v.12",
     "@graphql-codegen/cli": "^8.0.0",
     "@graphql-codegen/client-preset": "^7.0.0",
+    "@parcel/watcher": "^2.6.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6.2.1",
+    "@vitejs/plugin-rsc": "^0.5.39",
+    "cf": "1.0.0-beta.28",
     "concurrently": "^10.0.7",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5",
-    "wrangler": "^4.159.0"
-  }
+    "vite": "8.3.0"
+  },
+  "type": "module"
 }
