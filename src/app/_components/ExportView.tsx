@@ -6,7 +6,7 @@ import ExportTable from "./ExportTable";
 import ColumnsMenu from "./ColumnsMenu";
 import { useExportStream } from "./useExportStream";
 import { buildCSV } from "@/app/_export/csv";
-import { headersFor, seasonLabel } from "@/app/_export/project";
+import { headersFor, seasonLabel, seasonChipClass } from "@/app/_export/project";
 import { addLocalRecent } from "@/app/_lib/recentExports";
 import type { FullRecord, SeasonKey } from "@/app/_export/types";
 
@@ -147,6 +147,7 @@ export default function ExportView({
   const [busyExport, setBusyExport] = useState<
     null | "csv" | "xlsx" | "copy" | "json"
   >(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [search, setSearch] = useState(() => {
     if (typeof window === "undefined") return "";
     return new URLSearchParams(window.location.search).get("q") ?? "";
@@ -262,7 +263,21 @@ export default function ExportView({
       const name = (r.team?.name ?? "").toLowerCase();
       const event = (r.eventName ?? "").toLowerCase();
       const num = String(r.teamNumber);
-      return num.includes(needle) || name.includes(needle) || event.includes(needle);
+      const loc = r.team?.location;
+      const location = loc
+        ? `${loc.city ?? ""} ${loc.state ?? ""} ${loc.country ?? ""}`
+            .toLowerCase()
+            .replace(/\s+/g, " ")
+            .trim()
+        : "";
+      const website = (r.team?.website ?? "").toLowerCase();
+      return (
+        num.includes(needle) ||
+        name.includes(needle) ||
+        event.includes(needle) ||
+        location.includes(needle) ||
+        website.includes(needle)
+      );
     }).length;
   }, [search, state.records]);
 
@@ -339,35 +354,64 @@ export default function ExportView({
 
   return (
     <div className="h-screen bg-neutral-950 text-neutral-200 flex flex-col overflow-hidden">
-      <div className="border-b border-neutral-800 px-4 py-3 bg-neutral-900/60">
-        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2 mb-2">
-          <div className="flex items-baseline gap-3 min-w-0">
+      <div className="border-b border-neutral-800 bg-neutral-900/60 px-2 pt-1">
+        <div className="flex items-center gap-4 mb-1">
+          <div className="flex items-center gap-3 min-w-0 shrink">
+            <button
+              type="button"
+              aria-label={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
+              title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
+              onClick={() => setSidebarOpen((v) => !v)}
+              className="inline-flex items-center justify-center w-6 h-6 rounded text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800 shrink-0"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                aria-hidden="true"
+              >
+                <line x1="4" y1="7" x2="20" y2="7" />
+                <line x1="4" y1="12" x2="20" y2="12" />
+                <line x1="4" y1="17" x2="20" y2="17" />
+              </svg>
+            </button>
             <a
               href="/"
               className="text-lg font-semibold whitespace-nowrap leading-none hover:text-indigo-300"
             >
               FTC Scout Export
             </a>
-            <span className="px-2 py-0.5 rounded-full text-xs bg-indigo-900/60 border border-indigo-700 text-indigo-200 whitespace-nowrap leading-none">
+            <span
+              className={`px-2 py-0.5 rounded-full text-xs whitespace-nowrap leading-none ${seasonChipClass(
+                season
+              )}`}
+            >
               {seasonLabel(season)}
             </span>
             {state.uuid && (
               <span className="inline-flex items-center gap-1 min-w-0">
-                <span className="text-xs text-neutral-500 font-mono truncate leading-none">
-                  {state.uuid}
+                <span
+                  className="text-xs text-neutral-500 font-mono leading-none"
+                  title={state.uuid}
+                >
+                  {state.uuid.slice(0, 8)}
                 </span>
                 <CopyUrlIconButton uuid={state.uuid} />
               </span>
             )}
           </div>
 
-          <div className="flex items-center gap-3 text-xs text-neutral-400 ml-auto">
+          <div className="flex items-center gap-3 text-xs text-neutral-400 ml-auto shrink-0">
             <input
               ref={searchRef}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search team, number, event… (press /)"
-              className="h-7 px-2 w-64 bg-neutral-950 border border-neutral-800 rounded text-neutral-200 placeholder-neutral-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="Search (press /)"
+              className="h-7 px-2 w-56 bg-neutral-950 border border-neutral-800 rounded text-neutral-200 placeholder-neutral-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
             <ColumnsMenu
               headers={allHeaders}
@@ -435,6 +479,7 @@ export default function ExportView({
       </div>
 
       <div className="flex-1 flex min-h-0">
+        {sidebarOpen && (
         <aside className="w-56 shrink-0 border-r border-neutral-800 p-3 bg-neutral-950">
           <div className="text-xs uppercase tracking-wider text-neutral-500 mb-2">
             Spreadsheet
@@ -507,6 +552,7 @@ export default function ExportView({
             </div>
           )}
         </aside>
+        )}
 
         <main className="flex-1 min-w-0 min-h-0 flex flex-col">
           <ExportTable

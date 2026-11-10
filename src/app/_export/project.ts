@@ -55,6 +55,11 @@ export const headersFor = (season: SeasonKey) =>
 export const seasonLabel = (season: SeasonKey): string =>
   season === "2025" ? "Decode 2025–2026" : "Biobuzz 2026–2027";
 
+export const seasonChipClass = (season: SeasonKey): string =>
+  season === "2025"
+    ? "bg-amber-900/60 border border-amber-700 text-amber-200"
+    : "bg-indigo-900/60 border border-indigo-700 text-indigo-200";
+
 export const formatLocation = (team: TeamInfo | null | undefined) =>
   team?.location
     ? `${team.location.city ?? ""} ${team.location.state ?? ""} ${

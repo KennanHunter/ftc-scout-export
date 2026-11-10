@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getLocalRecent } from "@/app/_lib/recentExports";
-import { seasonLabel } from "@/app/_export/project";
+import { seasonLabel, seasonChipClass } from "@/app/_export/project";
 import type { SeasonKey } from "@/app/_export/types";
 
 type RecentEntry = {
@@ -96,7 +96,11 @@ export default function RecentExports() {
             className="flex items-center gap-3 px-2 py-1.5 rounded hover:bg-neutral-950/60"
           >
             <span
-              className="px-1.5 py-0.5 rounded text-[10px] bg-indigo-900/60 border border-indigo-700 text-indigo-200 whitespace-nowrap"
+              className={`px-1.5 py-0.5 rounded text-[10px] whitespace-nowrap ${
+                e.season === "2025" || e.season === "2026"
+                  ? seasonChipClass(e.season as SeasonKey)
+                  : "bg-neutral-800 border border-neutral-700 text-neutral-300"
+              }`}
               title={
                 e.source === "local"
                   ? "From this browser"

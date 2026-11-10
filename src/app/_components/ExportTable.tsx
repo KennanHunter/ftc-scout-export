@@ -241,8 +241,14 @@ const globalFilterFn = (row: Row<RowShape>, _col: string, q: string) => {
   const teamNum = String(row.getValue("teamnumber") ?? "");
   const name = String(row.getValue("name") ?? "").toLowerCase();
   const event = String(row.getValue("event") ?? "").toLowerCase();
+  const location = String(row.getValue("location") ?? "").toLowerCase();
+  const website = String(row.getValue("website") ?? "").toLowerCase();
   return (
-    teamNum.includes(needle) || name.includes(needle) || event.includes(needle)
+    teamNum.includes(needle) ||
+    name.includes(needle) ||
+    event.includes(needle) ||
+    location.includes(needle) ||
+    website.includes(needle)
   );
 };
 
@@ -316,13 +322,16 @@ export default function ExportTable({
   });
 
   const rows = table.getRowModel().rows;
-  const visibleColumnsWidth = table
-    .getVisibleLeafColumns()
-    .reduce((sum, c) => sum + c.getSize(), 0);
+  const visibleLeafColumns = table.getVisibleLeafColumns();
+  const hasVisibleColumns = visibleLeafColumns.length > 0;
+  const visibleColumnsWidth = visibleLeafColumns.reduce(
+    (sum, c) => sum + c.getSize(),
+    0
+  );
   const restoredScrollRef = useRef(false);
   const parentRef = useRef<HTMLDivElement>(null);
   const rowVirtualizer = useVirtualizer({
-    count: rows.length,
+    count: hasVisibleColumns ? rows.length : 0,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 32,
     overscan: 12,
@@ -386,6 +395,11 @@ export default function ExportTable({
       ref={parentRef}
       className="overflow-auto h-full border-t border-neutral-800"
     >
+      {!hasVisibleColumns ? (
+        <div className="h-full flex items-center justify-center text-sm text-neutral-500">
+          All columns hidden — open the Columns menu to show some.
+        </div>
+      ) : (
       <table
         className="text-sm border-separate border-spacing-0 table-fixed"
         style={{ width: visibleColumnsWidth }}
@@ -508,6 +522,7 @@ export default function ExportTable({
           )}
         </tbody>
       </table>
+      )}
     </div>
   );
 }
