@@ -1,4 +1,4 @@
-export type SeasonKey = "2025" | "2026";
+export type SeasonKey = "2022" | "2023" | "2024" | "2025" | "2026";
 
 export type TeamInfo = {
   number: number;
@@ -11,6 +11,45 @@ export type TeamInfo = {
     country?: string | null;
     venue?: string | null;
   } | null;
+};
+
+export type Opr2022 = {
+  totalPoints: number;
+  totalPointsNp: number;
+  autoPoints: number;
+  dcPoints: number;
+  egPoints: number;
+  autoConePoints: number;
+  dcLowPoints: number;
+  dcMediumPoints: number;
+  dcHighPoints: number;
+  dcTerminalPoints: number;
+  circuitPoints: number;
+  ownershipPoints: number;
+};
+
+export type Opr2023 = {
+  totalPoints: number;
+  totalPointsNp: number;
+  autoPoints: number;
+  dcPoints: number;
+  egPoints: number;
+  autoPixelPoints: number;
+  autoBackstagePoints: number;
+  autoBackdropPoints: number;
+  autoNavPoints: number;
+  dcBackstagePoints: number;
+  dcBackdropPoints: number;
+  dronePoints: number;
+  mosaicPoints: number;
+};
+
+export type Opr2024 = {
+  totalPoints: number;
+  totalPointsNp: number;
+  autoPoints: number;
+  dcPoints: number;
+  dcParkPoints: number;
 };
 
 export type Opr2025 = {
@@ -45,6 +84,27 @@ export type Avg2026 = {
   pollinator2Rp: number;
 };
 
+export type FullRecord2022 = {
+  teamNumber: number;
+  eventName: string | null;
+  team: TeamInfo | null;
+  opr: Opr2022 | null;
+};
+
+export type FullRecord2023 = {
+  teamNumber: number;
+  eventName: string | null;
+  team: TeamInfo | null;
+  opr: Opr2023 | null;
+};
+
+export type FullRecord2024 = {
+  teamNumber: number;
+  eventName: string | null;
+  team: TeamInfo | null;
+  opr: Opr2024 | null;
+};
+
 export type FullRecord2025 = {
   teamNumber: number;
   eventName: string | null;
@@ -60,7 +120,12 @@ export type FullRecord2026 = {
   avg: Avg2026 | null;
 };
 
-export type FullRecord = FullRecord2025 | FullRecord2026;
+export type FullRecord =
+  | FullRecord2022
+  | FullRecord2023
+  | FullRecord2024
+  | FullRecord2025
+  | FullRecord2026;
 
 export type ExportPayload = {
   uuid: string;

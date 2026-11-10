@@ -482,11 +482,15 @@ export default function ExportTable({
                     ? "px-1.5"
                     : "px-3";
                   const borderR = isName ? "border-r border-r-neutral-700" : "";
+                  const rawValue = cell.getValue();
+                  const isNonEmptyString =
+                    typeof rawValue === "string" && rawValue.length > 0;
                   const isReveal =
                     isName ||
-                    id === "website" ||
-                    id === "event" ||
-                    id === "location";
+                    ((id === "website" ||
+                      id === "event" ||
+                      id === "location") &&
+                      isNonEmptyString);
                   const revealClass = isReveal
                     ? `group/cell relative hover:overflow-visible ${
                         isName ? "hover:z-40" : "hover:z-20"

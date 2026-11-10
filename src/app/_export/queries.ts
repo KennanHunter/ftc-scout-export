@@ -15,6 +15,102 @@ export const TEAMS_SEARCH_QUERY = `
   }
 `;
 
+export const TEP_RECORDS_2022_QUERY = `
+  query TepRecords2022($skip: Int!, $take: Int!) {
+    tepRecords(season: 2022, skip: $skip, take: $take, region: All) {
+      data {
+        noFilterRank
+        data {
+          teamNumber
+          event {
+            name
+          }
+          stats {
+            ... on TeamEventStats2022 {
+              opr {
+                totalPoints
+                totalPointsNp
+                autoPoints
+                dcPoints
+                egPoints
+                autoConePoints
+                dcLowPoints
+                dcMediumPoints
+                dcHighPoints
+                dcTerminalPoints
+                circuitPoints
+                ownershipPoints
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const TEP_RECORDS_2023_QUERY = `
+  query TepRecords2023($skip: Int!, $take: Int!) {
+    tepRecords(season: 2023, skip: $skip, take: $take, region: All) {
+      data {
+        noFilterRank
+        data {
+          teamNumber
+          event {
+            name
+          }
+          stats {
+            ... on TeamEventStats2023 {
+              opr {
+                totalPoints
+                totalPointsNp
+                autoPoints
+                dcPoints
+                egPoints
+                autoPixelPoints
+                autoBackstagePoints
+                autoBackdropPoints
+                autoNavPoints
+                dcBackstagePoints
+                dcBackdropPoints
+                dronePoints
+                mosaicPoints
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const TEP_RECORDS_2024_QUERY = `
+  query TepRecords2024($skip: Int!, $take: Int!) {
+    tepRecords(season: 2024, skip: $skip, take: $take, region: All) {
+      data {
+        noFilterRank
+        data {
+          teamNumber
+          event {
+            name
+          }
+          stats {
+            ... on TeamEventStats2024 {
+              opr {
+                totalPoints
+                totalPointsNp
+                autoPoints
+                dcPoints
+                dcParkPoints
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const TEP_RECORDS_2025_QUERY = `
   query TepRecords2025($skip: Int!, $take: Int!) {
     tepRecords(season: 2025, skip: $skip, take: $take, region: All) {
@@ -110,6 +206,51 @@ export type TepRecordsResponse<Stats> = {
       };
     }>;
   };
+};
+
+export type Stats2022 = {
+  opr: {
+    totalPoints: number;
+    totalPointsNp: number;
+    autoPoints: number;
+    dcPoints: number;
+    egPoints: number;
+    autoConePoints: number;
+    dcLowPoints: number;
+    dcMediumPoints: number;
+    dcHighPoints: number;
+    dcTerminalPoints: number;
+    circuitPoints: number;
+    ownershipPoints: number;
+  } | null;
+};
+
+export type Stats2023 = {
+  opr: {
+    totalPoints: number;
+    totalPointsNp: number;
+    autoPoints: number;
+    dcPoints: number;
+    egPoints: number;
+    autoPixelPoints: number;
+    autoBackstagePoints: number;
+    autoBackdropPoints: number;
+    autoNavPoints: number;
+    dcBackstagePoints: number;
+    dcBackdropPoints: number;
+    dronePoints: number;
+    mosaicPoints: number;
+  } | null;
+};
+
+export type Stats2024 = {
+  opr: {
+    totalPoints: number;
+    totalPointsNp: number;
+    autoPoints: number;
+    dcPoints: number;
+    dcParkPoints: number;
+  } | null;
 };
 
 export type Stats2025 = {

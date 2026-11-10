@@ -4,12 +4,15 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import RecentExports from "./_components/RecentExports";
 
-const SEASONS = {
-  "2026": { label: "2026-2027 BIOBUZZ" },
-  "2025": { label: "2025-2026 DECODE" },
-} as const;
+const SEASONS = [
+  { key: "2026", label: "2026-2027 BIOBUZZ" },
+  { key: "2025", label: "2025-2026 DECODE" },
+  { key: "2024", label: "2024-2025 INTO THE DEEP" },
+  { key: "2023", label: "2023-2024 CENTERSTAGE" },
+  { key: "2022", label: "2022-2023 POWER PLAY" },
+] as const;
 
-type SeasonKey = keyof typeof SEASONS;
+type SeasonKey = (typeof SEASONS)[number]["key"];
 
 export default function Home() {
   const router = useRouter();
@@ -28,8 +31,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-200 flex items-center justify-center py-10">
-      <div className="max-w-md w-full mx-4">
-      <RecentExports />
+      <div className="w-full px-4 max-w-md lg:max-w-4xl grid gap-6 grid-cols-1 lg:grid-cols-[minmax(0,28rem)_minmax(0,24rem)] lg:items-start">
       <main className="bg-neutral-900 rounded-2xl shadow-2xl p-8 border border-neutral-800">
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold mb-2">FTC Scout Export</h1>
@@ -46,8 +48,8 @@ export default function Home() {
             disabled={starting}
             className="w-full px-3 py-2.5 bg-neutral-950 border border-neutral-800 rounded-lg text-neutral-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50"
           >
-            {Object.entries(SEASONS).map(([k, { label }]) => (
-              <option key={k} value={k}>
+            {SEASONS.map(({ key, label }) => (
+              <option key={key} value={key}>
                 {label}
               </option>
             ))}
@@ -118,6 +120,7 @@ export default function Home() {
           </p>
         </div>
       </main>
+      <RecentExports />
       </div>
     </div>
   );

@@ -82,7 +82,7 @@ export default function RecentExports() {
   if (!hydrated || items.length === 0) return null;
 
   return (
-    <div className="mb-6 bg-neutral-900 border border-neutral-800 rounded-2xl p-4">
+    <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-semibold text-neutral-200">
           Recent exports
@@ -97,7 +97,11 @@ export default function RecentExports() {
           >
             <span
               className={`px-1.5 py-0.5 rounded text-[10px] whitespace-nowrap ${
-                e.season === "2025" || e.season === "2026"
+                e.season === "2022" ||
+                e.season === "2023" ||
+                e.season === "2024" ||
+                e.season === "2025" ||
+                e.season === "2026"
                   ? seasonChipClass(e.season as SeasonKey)
                   : "bg-neutral-800 border border-neutral-700 text-neutral-300"
               }`}
@@ -109,7 +113,11 @@ export default function RecentExports() {
                   : "This browser + shared"
               }
             >
-              {e.season === "2025" || e.season === "2026"
+              {e.season === "2022" ||
+              e.season === "2023" ||
+              e.season === "2024" ||
+              e.season === "2025" ||
+              e.season === "2026"
                 ? seasonLabel(e.season as SeasonKey)
                 : e.season}
             </span>

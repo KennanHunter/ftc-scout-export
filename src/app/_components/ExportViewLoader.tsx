@@ -26,7 +26,16 @@ export default function ExportViewLoader({ uuid }: { uuid: string }) {
     const totalRaw = params.get("totalTeams");
 
     if (live === "1" && seasonRaw && totalRaw) {
-      const season: SeasonKey = seasonRaw === "2025" ? "2025" : "2026";
+      const season: SeasonKey =
+        seasonRaw === "2022"
+          ? "2022"
+          : seasonRaw === "2023"
+          ? "2023"
+          : seasonRaw === "2024"
+          ? "2024"
+          : seasonRaw === "2025"
+          ? "2025"
+          : "2026";
       const totalTeams = Math.max(1, Number(totalRaw) || 0);
       setStatus({ kind: "live", season, totalTeams });
       return;

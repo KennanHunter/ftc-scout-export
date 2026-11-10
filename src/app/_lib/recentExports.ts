@@ -23,7 +23,11 @@ const read = (): LocalRecentExport[] => {
         typeof e.uuid === "string" &&
         typeof e.createdAt === "number" &&
         typeof e.totalRecords === "number" &&
-        (e.season === "2025" || e.season === "2026")
+        (e.season === "2022" ||
+          e.season === "2023" ||
+          e.season === "2024" ||
+          e.season === "2025" ||
+          e.season === "2026")
     );
   } catch {
     return [];

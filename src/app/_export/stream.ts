@@ -1,8 +1,14 @@
 import { executeGraphQL } from "./client";
 import {
+  Stats2022,
+  Stats2023,
+  Stats2024,
   Stats2025,
   Stats2026,
   TEAMS_SEARCH_QUERY,
+  TEP_RECORDS_2022_QUERY,
+  TEP_RECORDS_2023_QUERY,
+  TEP_RECORDS_2024_QUERY,
   TEP_RECORDS_2025_QUERY,
   TEP_RECORDS_2026_QUERY,
   TeamsSearchResponse,
@@ -10,6 +16,9 @@ import {
 } from "./queries";
 import type {
   FullRecord,
+  FullRecord2022,
+  FullRecord2023,
+  FullRecord2024,
   FullRecord2025,
   FullRecord2026,
   SeasonKey,
@@ -34,6 +43,45 @@ const fetchTeamMap = async (): Promise<Map<number, TeamInfo>> => {
   });
   return map;
 };
+
+const mapBatch2022 = (
+  data: TepRecordsResponse<Stats2022>,
+  teamMap: Map<number, TeamInfo>
+): FullRecord2022[] =>
+  data.tepRecords.data
+    .filter(({ data: d }) => !EXCLUDED_TEAM_NUMBERS.has(d.teamNumber))
+    .map(({ data: d }) => ({
+      teamNumber: d.teamNumber,
+      eventName: d.event?.name ?? null,
+      team: teamMap.get(d.teamNumber) ?? null,
+      opr: d.stats?.opr ?? null,
+    }));
+
+const mapBatch2023 = (
+  data: TepRecordsResponse<Stats2023>,
+  teamMap: Map<number, TeamInfo>
+): FullRecord2023[] =>
+  data.tepRecords.data
+    .filter(({ data: d }) => !EXCLUDED_TEAM_NUMBERS.has(d.teamNumber))
+    .map(({ data: d }) => ({
+      teamNumber: d.teamNumber,
+      eventName: d.event?.name ?? null,
+      team: teamMap.get(d.teamNumber) ?? null,
+      opr: d.stats?.opr ?? null,
+    }));
+
+const mapBatch2024 = (
+  data: TepRecordsResponse<Stats2024>,
+  teamMap: Map<number, TeamInfo>
+): FullRecord2024[] =>
+  data.tepRecords.data
+    .filter(({ data: d }) => !EXCLUDED_TEAM_NUMBERS.has(d.teamNumber))
+    .map(({ data: d }) => ({
+      teamNumber: d.teamNumber,
+      eventName: d.event?.name ?? null,
+      team: teamMap.get(d.teamNumber) ?? null,
+      opr: d.stats?.opr ?? null,
+    }));
 
 const mapBatch2025 = (
   data: TepRecordsResponse<Stats2025>,
@@ -68,6 +116,27 @@ const runBatch = async (
   take: number,
   teamMap: Map<number, TeamInfo>
 ): Promise<FullRecord[]> => {
+  if (season === "2022") {
+    const resp = await executeGraphQL<TepRecordsResponse<Stats2022>>(
+      TEP_RECORDS_2022_QUERY,
+      { skip, take }
+    );
+    return mapBatch2022(resp, teamMap);
+  }
+  if (season === "2023") {
+    const resp = await executeGraphQL<TepRecordsResponse<Stats2023>>(
+      TEP_RECORDS_2023_QUERY,
+      { skip, take }
+    );
+    return mapBatch2023(resp, teamMap);
+  }
+  if (season === "2024") {
+    const resp = await executeGraphQL<TepRecordsResponse<Stats2024>>(
+      TEP_RECORDS_2024_QUERY,
+      { skip, take }
+    );
+    return mapBatch2024(resp, teamMap);
+  }
   if (season === "2025") {
     const resp = await executeGraphQL<TepRecordsResponse<Stats2025>>(
       TEP_RECORDS_2025_QUERY,
