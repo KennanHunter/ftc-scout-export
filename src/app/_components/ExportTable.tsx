@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -128,10 +128,14 @@ const buildColumns = (season: SeasonKey): ColumnDef<RowShape>[] => {
         if (isName) {
           const teamNum = row.getValue("teamnumber") as number;
           const name = typeof v === "string" ? v : String(v);
+          const easter =
+            teamNum === 11329
+              ? "group-hover/cell:text-[rgb(81,214,245)] transition-colors"
+              : "";
           return (
             <>
               <span
-                className="flex items-center min-w-0 truncate"
+                className={`flex items-center min-w-0 truncate ${easter}`}
                 title={name}
               >
                 <TeamLinkIcons teamNumber={teamNum} />
@@ -141,7 +145,10 @@ const buildColumns = (season: SeasonKey): ColumnDef<RowShape>[] => {
                   <span className="truncate">{name}</span>
                 )}
               </span>
-              <span aria-hidden="true" className={revealOverlayClass}>
+              <span
+                aria-hidden="true"
+                className={`${revealOverlayClass} ${easter}`}
+              >
                 <TeamLinkIcons teamNumber={teamNum} />
                 {name === "" ? (
                   <span className="text-gray-500">-</span>
@@ -181,6 +188,14 @@ const buildColumns = (season: SeasonKey): ColumnDef<RowShape>[] => {
                 <span className="text-indigo-300 underline">{v}</span>
               </span>
             </>
+          );
+        }
+        if (isTeamNumber) {
+          // little easter egg lol
+          const easter =
+            v === 11329 ? "hover:text-[rgb(81,214,245)] transition-colors" : "";
+          return (
+            <span className={`tabular-nums ${easter}`}>{v}</span>
           );
         }
         if (isNumeric && typeof v === "number") {
@@ -248,9 +263,39 @@ export default function ExportTable({
 }: ExportTableProps) {
   const data = useMemo(() => buildRows(season, records), [season, records]);
   const columns = useMemo(() => buildColumns(season), [season]);
-  const [sorting, setSorting] = useState<SortingState>([
-    { id: "oprTotalNp", desc: true },
-  ]);
+  const [sorting, setSorting] = useState<SortingState>(() => {
+    if (typeof window === "undefined") {
+      return [{ id: "oprTotalNp", desc: true }];
+    }
+    const raw = new URLSearchParams(window.location.search).get("sort");
+    if (!raw) return [{ id: "oprTotalNp", desc: true }];
+    const parsed: SortingState = [];
+    for (const part of raw.split(",")) {
+      const [id, dir] = part.split(":");
+      if (id) parsed.push({ id, desc: dir !== "asc" });
+    }
+    return parsed.length ? parsed : [{ id: "oprTotalNp", desc: true }];
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const encoded = sorting
+      .map((s) => `${s.id}:${s.desc ? "desc" : "asc"}`)
+      .join(",");
+    const isDefault =
+      sorting.length === 1 &&
+      sorting[0].id === "oprTotalNp" &&
+      sorting[0].desc === true;
+    if (encoded && !isDefault) params.set("sort", encoded);
+    else params.delete("sort");
+    const search = params.toString();
+    const url =
+      window.location.pathname +
+      (search ? `?${search}` : "") +
+      window.location.hash;
+    window.history.replaceState(window.history.state, "", url);
+  }, [sorting]);
 
   const table = useReactTable({
     data,
@@ -274,6 +319,7 @@ export default function ExportTable({
   const visibleColumnsWidth = table
     .getVisibleLeafColumns()
     .reduce((sum, c) => sum + c.getSize(), 0);
+  const restoredScrollRef = useRef(false);
   const parentRef = useRef<HTMLDivElement>(null);
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
@@ -282,6 +328,48 @@ export default function ExportTable({
     overscan: 12,
   });
   const virtualRows = rowVirtualizer.getVirtualItems();
+
+  useEffect(() => {
+    const el = parentRef.current;
+    if (!el || rows.length === 0) return;
+
+    if (!restoredScrollRef.current) {
+      const hash = window.location.hash;
+      const m = /(?:^|&)row=(\d+)/.exec(hash);
+      if (m) {
+        const idx = Math.min(rows.length - 1, Math.max(0, parseInt(m[1], 10)));
+        rowVirtualizer.scrollToIndex(idx, { align: "start" });
+        restoredScrollRef.current = true;
+      } else if (hash === "" || hash === "#") {
+        restoredScrollRef.current = true;
+      }
+    }
+
+    let frame = 0;
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        const first = rowVirtualizer.getVirtualItems()[0];
+        if (!first) return;
+        const idx = first.index;
+        const next = idx > 0 ? `#row=${idx}` : "";
+        if (
+          window.location.hash !== next &&
+          !(window.location.hash === "" && next === "")
+        ) {
+          const url =
+            window.location.pathname + window.location.search + next;
+          window.history.replaceState(window.history.state, "", url);
+        }
+      });
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [rows.length, rowVirtualizer]);
   const totalSize = rowVirtualizer.getTotalSize();
   const paddingTop = virtualRows.length > 0 ? virtualRows[0].start : 0;
   const paddingBottom =

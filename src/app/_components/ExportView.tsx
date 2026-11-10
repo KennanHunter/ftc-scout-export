@@ -147,8 +147,24 @@ export default function ExportView({
   const [busyExport, setBusyExport] = useState<
     null | "csv" | "xlsx" | "copy" | "json"
   >(null);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return new URLSearchParams(window.location.search).get("q") ?? "";
+  });
   const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (search) params.set("q", search);
+    else params.delete("q");
+    const query = params.toString();
+    const url =
+      window.location.pathname +
+      (query ? `?${query}` : "") +
+      window.location.hash;
+    window.history.replaceState(window.history.state, "", url);
+  }, [search]);
 
   const allHeaders = useMemo(() => headersFor(season), [season]);
   const visibilityStorageKey = `ftcse:columnVisibility:${season}`;
