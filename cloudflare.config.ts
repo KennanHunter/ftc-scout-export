@@ -23,6 +23,7 @@ export default defineConfig({
       FTC_SCOUT_EXPORT_DATA: bindings.kv({
         id: "3b15dc605d94440e99b82610d22bd96f",
       }),
+      ALERT_API_KEY: bindings.secret(),
     },
   }),
 });

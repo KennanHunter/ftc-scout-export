@@ -16,6 +16,7 @@ import type {
 } from "@/app/_export/types";
 import { sortByNonPenalty } from "@/app/_export/project";
 import { log } from "@/app/_export/log";
+import { notifyExportCreated } from "@/app/_export/alerts";
 
 export const runtime = "edge";
 
@@ -135,6 +136,16 @@ export async function POST(req: Request): Promise<Response> {
               season,
               createdAt: payload.createdAt,
               totalRecords: payload.totalRecords,
+            });
+            await notifyExportCreated({
+              uuid,
+              season,
+              totalRecords: payload.totalRecords,
+              totalBatches: ctx.batches.length,
+              successes,
+              errors,
+              durationMs: Date.now() - t0,
+              request: req,
             });
           } catch (e) {
             log.error("api.export", "KV put failed", {

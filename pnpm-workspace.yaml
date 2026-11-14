@@ -7,6 +7,7 @@ minimumReleaseAgeExclude:
   - "@cloudflare/workerd-linux-arm64"
   - "@cloudflare/workerd-windows-64"
   - miniflare
+  - "@kennanhunter/alert-client@0.1.0"
 allowBuilds:
   '@parcel/watcher': set this to true or false
   esbuild: true

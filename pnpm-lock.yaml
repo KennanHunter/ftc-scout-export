@@ -11,6 +11,9 @@ importers:
       '@graphql-typed-document-node/core':
         specifier: ^3.2.0
         version: 3.2.0(graphql@17.1.0)
+      '@kennanhunter/alert-client':
+        specifier: ^0.1.0
+        version: 0.1.0
       '@tanstack/react-table':
         specifier: ^8.20.5
         version: 8.21.3(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -1161,6 +1164,10 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
+
+  '@kennanhunter/alert-client@0.1.0':
+    resolution: {integrity: sha512-dXCYuU2p4KBu8GXNNa4VvvIUI5VUIFfUltd2XokJHhReBg3Wir3z8F/2qZVL/07CoyLHpdQKSdHY9ut/wIeLTQ==}
+    engines: {node: '>=18'}
 
   '@next/env@15.1.1':
     resolution: {integrity: sha512-ldU8IpUqxa87LsWyMh8eIqAzejt8+ZuEsdtCV+fpDog++cBO5b/PWaI7wQQwun8LKJeFFpnY4kv/6r+/dCON6A==}
@@ -4820,6 +4827,8 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.6.0
+
+  '@kennanhunter/alert-client@0.1.0': {}
 
   '@next/env@15.1.1': {}
 
